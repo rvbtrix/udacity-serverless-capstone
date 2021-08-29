@@ -40,7 +40,7 @@ export const createPost = async (requestNewPost: ICreatePostRequest, userId: str
     try {
         const reWhiteSpace = new RegExp(/^(?!\s+$)[A-Za-zăâîșțĂÂÎȘȚ\s-]+$/);
 
-        if (!reWhiteSpace.test(requestNewPost.description)) throw new Error('Name and duedate is requered.');
+        if (!reWhiteSpace.test(requestNewPost.description)) throw new Error('Description is requered.');
 
         const post: IPostItem = {
             description: requestNewPost.description,

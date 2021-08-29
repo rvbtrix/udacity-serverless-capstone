@@ -68,16 +68,15 @@ export class UserProfile extends React.PureComponent<
   }
 
   async componentDidMount() {
-    try {
       const user = await getUser(this.props.auth.getIdToken())
-      this.setState({
-        name: user.name,
-        lastName: user.lastName,
-        email: user.email
-      })
-    } catch (e) {
-      alert(`Failed to fetch posts: ${e.message}`)
-    }
+      if(user) {
+        this.setState({
+          name: user.name,
+          lastName: user.lastName,
+          email: user.email
+        })
+      }
+   
   }
 
   render() {
