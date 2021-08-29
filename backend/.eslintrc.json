@@ -1,0 +1,220 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true,
+        "browser": false
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "globals": {
+        "process": "readonly"
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".ts"
+                ]
+            }
+        }
+    },
+    "rules": {
+
+        "@typescript-eslint/member-ordering": [
+            "error",
+            {
+                "default": [
+                    // Fields
+                    "public-instance-field",
+                    "public-static-field",
+                    "protected-instance-field",
+                    "protected-static-field",
+                    "private-instance-field",
+                    "private-static-field",
+                  
+                    // Constructors
+                    "public-constructor",
+                    "protected-constructor",
+                    "private-constructor",
+                  
+                    // Methods
+                    "public-instance-method",
+                    "public-static-method",
+                    "protected-instance-method",
+                    "protected-static-method",
+                    "private-instance-method",
+                    "private-static-method"
+                  ]
+            }
+        ],
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/naming-convention": [
+            "error",
+            {
+                "selector": "interface",
+                "format": [
+                    "PascalCase"
+                ],
+                "custom": {
+                    "regex": "^I[A-Z]",
+                    "match": true
+                }
+            }
+        ],
+        "@typescript-eslint/no-parameter-properties": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/explicit-member-accessibility": [
+            "error",
+            {
+                "overrides": {
+                    "constructors": "off"
+                }
+            }
+        ],
+        
+        "import/order": "off",
+        "import/no-unresolved": [
+            "off",
+            {
+                "caseSensitive": true
+            }
+        ],
+        "import/prefer-default-export": "off",
+        
+        "quotes": ["error",  "single"],
+        "no-undef": "off",
+        "id-length": [
+            "error",
+            {
+                "min": 2,
+                "properties": "never"
+            }
+        ],
+        "new-cap": [
+            "error", {
+                "capIsNewExceptions": [
+                    "FundsError"
+                ]
+            }
+        ],
+        "key-spacing": "off",
+        "arrow-parens": ["error", "as-needed"],
+        "spaced-comment": ["error"],
+        "prefer-template": ["error"],
+        "no-return-assign": "off",
+        "no-useless-concat": ["error"],
+        "consistent-return": "off",
+        "no-inline-comments":["error"],
+        "capitalized-comments": ["error"],
+        "lines-around-comment": ["error"],
+        "object-curly-newline": "off",
+        "object-curly-spacing": "off",
+        "no-underscore-dangle": "off",
+        "newline-before-return": ["error"],
+        "function-paren-newline": "off",
+        "no-useless-constructor": "off",
+        "class-methods-use-this": "off",
+        "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+
+        "curly": [
+            2,
+            "multi-line",
+            "consistent"
+        ],
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "max-len": [
+            "error",
+            145,
+            {
+                "ignoreUrls": true,
+                "ignoreTemplateLiterals": true,
+                "ignorePattern": "^import\\s.+\\sfrom\\s.+;$"
+            }
+        ],
+        "camelcase": [
+            "error",
+            {
+                "properties": "never",
+                "ignoreDestructuring": true
+            }
+        ],
+        "require-jsdoc": [
+            "error",
+            {
+                "require": {
+                    "ClassDeclaration": false,
+                    "MethodDefinition": true,
+                    "FunctionExpression": false,
+                    "FunctionDeclaration": true,
+                    "ArrowFunctionExpression": true
+                }
+            }
+        ],
+        // "padded-blocks": [
+        //     "error",
+        //     {
+        //         "classes": "always",
+        //         "switches": "always"
+        //     }
+        // ],
+        "no-empty-function": [
+            "error",
+            {
+                "allow": [
+                    "constructors"
+                ]
+            }
+        ],
+        "no-param-reassign": [
+            "error",
+            {
+                "props": false
+            }
+        ],
+        "newline-per-chained-call": [
+            "error",
+            {
+                "ignoreChainWithDepth": 2
+            }
+        ],
+        "padding-line-between-statements": [
+            "error",
+            {
+                "blankLine": "always",
+                "prev": ["const", "let", "var"],
+                "next": "*"
+            },
+            {
+                "blankLine": "any",
+                "prev": ["const", "let", "var"],
+                "next": ["const", "let", "var"]
+            }
+        ],
+        "no-multi-spaces": ["error"],
+        "block-scoped-var": ["error"],
+        "no-shadow": ["error"],
+        "no-cond-assign": ["error"]
+    }
+}

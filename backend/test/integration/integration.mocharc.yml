@@ -1,0 +1,5 @@
+require: 'ts-node/register'
+file: 'test/integration/_support/setup.ts'
+recursive: true
+timeout: 50000
+exit: true

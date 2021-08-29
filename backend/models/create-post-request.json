@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "post",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string"
+    },
+    "attachmentUrl": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "description"
+  ],
+  "additionalProperties": false
+}

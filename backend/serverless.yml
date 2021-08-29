@@ -1,0 +1,329 @@
+service: udacity-final-project
+
+frameworkVersion: ">=2.33.1"
+
+package:
+  exclude:
+    - ./**
+    - '!node_modules/**'
+  include:
+    - '!node_modules/aws-sdk/**'
+    - '!node_modules/**/aws-sdk/**'
+    - build/src/**
+    - package.json
+    - package-lock.json
+  excludeDevDependencies: true
+
+provider:
+  tracing:
+    lambda: true
+    apiGateway: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+  name: aws
+  runtime: nodejs14.x
+
+  lambdaHashingVersion: "20201221"
+
+  apiGateway:
+    shouldStartNameWithService: true
+
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+              - 'lambda:InvokeFunction'
+          Resource:
+          - Fn::Join:
+              - ':'
+              - - arn:aws:lambda
+                - Ref: AWS::Region
+                - Ref: AWS::AccountId
+                - function:${self:service}-${opt:stage, self:provider.stage}-*
+        - Effect: 'Allow'
+          Action:
+            - 'secretsmanager:GetSecretValue'
+          Resource:
+          - Fn::Join:
+              - ':'
+              - - arn:aws:secretsmanager
+                - Ref: AWS::Region
+                - Ref: AWS::AccountId
+        - Effect: Allow
+          Action:
+            - codedeploy:*
+          Resource:
+            - '*'
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: 
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.POSTITEM_DB_TABLE}
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USER_DB_TABLE}
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+          Resource: 
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.POSTITEM_DB_TABLE}/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.USER_DB_TABLE}/index/*
+        - Effect: Allow
+          Action:
+            - s3:ListBucket
+            - s3:PutObject
+            - s3:GetObject
+          Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}
+        - Effect: Allow
+          Action:
+            - s3:ListBucket
+            - s3:PutObject
+            - s3:GetObject
+          Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+
+  stage: ${opt:stage, 'local'}
+  region: ${self:custom.config.region}
+
+  environment:
+    REGION: ${self:custom.region}
+    STAGE: ${self:custom.stage}
+    SECRET_KEYS_ID: ${self:custom.config.environment.SECRET_KEYS_ID}
+    IMAGES_S3_BUCKET: serverless-udagram-images-${self:provider.stage}
+    POSTITEM_DB_TABLE: ${self:custom.database.postItem}
+    USER_DB_TABLE: ${self:custom.database.user}
+    SIGNED_URL_EXPIRATION: 300
+
+functions:
+  Auth:
+    handler: build/src/lambda/auth/auth0Authorizer.handler
+
+  GetPosts:
+    handler: build/src/lambda/http/getPosts.handler
+    events:
+      - http:
+          method: get
+          path: posts
+          cors: true
+          authorizer: Auth
+
+  CreatePost:
+    handler: build/src/lambda/http/createPost.handler
+    events:
+      - http:
+          method: post
+          path: posts
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: Create a new post
+            description: Create a new post
+            requestModels:
+              'application/json': PostRequest
+
+  UpdatePost:
+    handler: build/src/lambda/http/updatePost.handler
+    events:
+      - http:
+          method: patch
+          path: posts/{postId}
+          cors: true
+          authorizer: Auth
+
+
+  DeletePost:
+    handler: build/src/lambda/http/deletePost.handler
+    events:
+      - http:
+          method: delete
+          path: posts/{postId}
+          cors: true
+          authorizer: Auth
+
+  GenerateUploadUrl:
+    handler: build/src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: posts/{postId}/attachment
+          cors: true
+          authorizer: Auth
+
+  UpdateUser:
+    handler: build/src/lambda/http/updateUser.handler
+    events:
+      - http:
+          method: put
+          path: users
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: Update User
+            description: Update User
+            requestModels:
+              'application/json': UserRequest
+
+  GetUser:
+    handler: build/src/lambda/http/getUser.handler
+    events:
+      - http:
+          method: get
+          path: users
+          cors: true
+          authorizer: Auth
+
+custom:
+  config: ${file(stages.yml):${opt:stage, self:provider.stage}}
+  stage: ${self:provider.stage}
+  region: ${opt:region, self:provider.region}
+  database:
+    postItem: ${self:service}-${self:custom.stage}-postItem
+    user: ${self:service}-${self:custom.stage}-user
+  warmup:
+    default:
+      enabled:
+  splitStacks:
+    perFunction: false
+    perType: false
+    perGroupFunction: false
+  topicName: imagesTopic-${self:provider.stage}
+
+  serverless-offline-dynamodb-streams:
+    endpoint: http://0.0.0.0:8000
+  prune:
+    automatic: true
+    number: 3
+  scriptHooks:
+    'before:package:createDeploymentArtifacts': npx tsc --build .
+
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Udagram API
+        description: Serverless application
+    models:
+      - name: PostRequest
+        contentType: application/json
+        schema: ${file(models/create-post-request.json)}
+      - name: UserRequest
+        contentType: application/json
+        schema: ${file(models/create-user-request.json)}
+
+plugins:
+  - serverless-scriptable-plugin
+  - serverless-plugin-warmup
+  - serverless-plugin-split-stacks
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-prune-plugin
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
+
+resources:
+  Resources:
+    PostItem:
+      Type: AWS::DynamoDB::Table
+      Properties:
+          TableName: ${self:custom.database.postItem}
+          AttributeDefinitions:
+            - AttributeName: userId
+              AttributeType: S
+            - AttributeName: postId
+              AttributeType: S
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            - AttributeName: postId
+              KeyType: RANGE
+          BillingMode: PAY_PER_REQUEST
+          GlobalSecondaryIndexes:
+            - IndexName: postIdIndex
+              KeySchema:
+                - AttributeName: postId
+                  KeyType: HASH
+              Projection:
+                ProjectionType: ALL
+
+    User:
+      Type: AWS::DynamoDB::Table
+      Properties:
+          TableName: ${self:custom.database.user}
+          AttributeDefinitions:
+            - AttributeName: userId
+              AttributeType: S
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          BillingMode: PAY_PER_REQUEST
+
+    DynamoDBIamPolicy:
+        Type: AWS::IAM::Policy
+        DependsOn:
+            - PostItem
+            - User
+        Properties:
+            PolicyName: ${self:service}-${self:custom.stage}-dynamodb
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    - Effect: Allow
+                      Action:
+                          - dynamodb:DescribeTable
+                          - dynamodb:GetItem
+                          - dynamodb:PutItem
+                          - dynamodb:UpdateItem
+                          - dynamodb:DeleteItem
+                          - dynamodb:Scan
+                          - dynamodb:Query
+                          - dynamodb:ListStreams
+                          - dynamodb:DescribeStream
+                      Resource:
+                          - arn:aws:dynamodb:*:*:table/${self:custom.database.postItem}
+                          - arn:aws:dynamodb:*:*:table/${self:custom.database.user}
+
+            Roles:
+                - Ref: IamRoleLambdaExecution
+
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+        AccessControl: PublicRead
+
+    BucketPolicyS3:
+      Type: 'AWS::S3::BucketPolicy'
+      Properties:
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: '*'
+              Action:
+                - 's3:GetObject'
+              Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+        Bucket:
+          Ref: AttachmentsBucket

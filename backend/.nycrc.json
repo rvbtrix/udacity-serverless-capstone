@@ -1,0 +1,35 @@
+{
+    "reporter": [
+        "text",
+        "html",
+        "lcov"
+    ],
+    "extension": [
+        ".ts"
+    ],
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "test/*",
+        "node_modules/*",
+        "src/entities/**/*.ts",
+        "src/lib-temp/**/*.ts",
+        "src/enums/**/*.enum.ts",
+        "src/models/**/*.model.ts",
+        "src/helpers/**/*-helper.ts",
+        "src/common/clients/**/*.ts",
+        "src/databases/**/*.database.ts",
+        "src/interfaces/**/*.interface.ts",
+        "src/repositories/**/*-repository.ts",
+        "src/common/middlewares/warmup.middlewares.ts",
+        "src/common/clients/intefaces/**/*.interface.ts"
+    ],
+    "require": [
+        "ts-node/register"
+    ],
+    "sourceMap": true,
+    "instrument": true,
+    "check-coverage": false,
+    "cache": true
+}

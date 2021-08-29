@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "lib": ["es2020"],
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "target": "es2020",
+        "locale": "pt-BR",
+        "outDir": "build",
+        "allowJs": true,
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "removeComments": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "strictNullChecks": false,
+        "preserveConstEnums": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "typeRoots": [
+            "node_modules/@types",
+            "./types"
+        ]
+    },
+    "exclude": [
+        "build",
+        "coverage",
+        ".dynamodb",
+        ".nyc_output",
+    ]
+}

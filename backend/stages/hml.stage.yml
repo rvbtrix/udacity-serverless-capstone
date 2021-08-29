@@ -1,0 +1,8 @@
+region: sa-east-1
+environment:
+    SECRET_KEYS_ID: secrets-keys-hml
+
+cors:
+  ALLOW_ORIGIN: '*'
+  ALLOW_HEADERS: 'GET, POST, OPTIONS'
+  ALLOW_METHODS: '*'
